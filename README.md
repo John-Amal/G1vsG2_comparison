@@ -2,7 +2,7 @@
 
 This repository contains the storyline and climatology comparison report for the G1 vs G2 IFS-FESOM km-scale storylines.
 
-**View the Interactive Report:** [https://john-amal.github.io/G1vsG2_comparison/](https://john-amal.github.io/G1vsG2_comparison/)
+**View the Interactive Report:** [https://john-amal.github.io/G1vsG2_comparison/REPORT.html](https://john-amal.github.io/G1vsG2_comparison/REPORT.html)
 
 ## Contents
 - Detailed comparisons of Annual and Seasonal Biases (G1 vs. G2) against ERA5.
