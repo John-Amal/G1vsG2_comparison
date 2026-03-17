@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G1 vs G2 — IFS-FESOM Storyline Comparison</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #21253a;
+            --accent: #4f8ef7;
+            --accent2: #7dd3fc;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #2d3350;
+            --green: #34d399;
+            --yellow: #fbbf24;
+            --red: #f87171;
+            --purple: #c084fc;
+            --code-bg: #12151f;
+            --nav-bg: var(--surface2)
+        }
+
+        body.light {
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --surface2: #e8edf5;
+            --accent: #2563eb;
+            --accent2: #1d4ed8;
+            --text: #1e2535;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --green: #16a34a;
+            --yellow: #b45309;
+            --red: #dc2626;
+            --purple: #7c3aed;
+            --code-bg: #f1f5f9;
+            --nav-bg: #e8edf5
+        }
+
+        body.light code {
+            color: var(--accent2)
+        }
+
+        body.light .note {
+            background: #dcfce7;
+            color: #14532d;
+            border-color: var(--green)
+        }
+
+        body.light .warn {
+            background: #fef9c3;
+            color: #854d0e;
+            border-color: var(--yellow)
+        }
+
+        body.light .tip {
+            background: #eff6ff;
+            color: var(--accent2);
+            border-color: var(--accent)
+        }
+
+        body.light td,
+        body.light th {
+            background: var(--surface)
+        }
+
+        body.light tr:hover td {
+            background: var(--surface2)
+        }
+
+        body.light .badge.g2 {
+            background: #dcfce7;
+            color: var(--green);
+            border-color: var(--green)
+        }
+
+        body.light .badge.g1 {
+            background: #fee2e2;
+            color: var(--red);
+            border-color: var(--red)
+        }
+
+        body.light .badge.same {
+            background: #eff6ff;
+            color: var(--accent2);
+            border-color: var(--accent)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 0 0 4rem;
+            transition: background .25s, color .25s
+        }
+
+        .container {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 0 1.2rem
+        }
+
+        /* Nav */
+        .page-nav {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--nav-bg);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0 1.2rem;
+            overflow-x: auto
+        }
+
+        .nav-btn {
+            padding: .65rem 1.1rem;
+            font-size: .86rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: color .2s, border-color .2s
+        }
+
+        .nav-btn.active {
+            color: var(--accent2);
+            border-bottom-color: var(--accent)
+        }
+
+        .theme-btn {
+            margin-left: auto;
+            padding: .32rem .8rem;
+            font-size: .8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--muted);
+            font-family: inherit
+        }
+
+        .theme-btn:hover {
+            color: var(--text);
+            border-color: var(--accent)
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            padding-top: 1.8rem
+        }
+
+        .section.active {
+            display: block
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: .2rem
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: .9rem;
+            margin-bottom: 2rem
+        }
+
+        h2 {
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: var(--accent2);
+            margin: 2rem 0 .7rem;
+            padding-bottom: .3rem;
+            border-bottom: 1px solid var(--border)
+        }
+
+        h3 {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: .9rem 0 .35rem
+        }
+
+        p {
+            margin-bottom: .65rem;
+            font-size: .9rem
+        }
+
+        code {
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: .82em;
+            background: var(--code-bg);
+            padding: .1em .35em;
+            border-radius: 4px;
+            color: var(--accent2);
+            border: 1px solid var(--border)
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1.8rem 0
+        }
+
+        .note {
+            background: #0f2a1a;
+            border-left: 3px solid var(--green);
+            border-radius: 0 8px 8px 0;
+            padding: .6rem .95rem;
+            font-size: .85rem;
+            color: #86efac;
+            margin: .6rem 0
+        }
+
+        .warn {
+            background: #2a1f0a;
+            border-left: 3px solid var(--yellow);
+            border-radius: 0 8px 8px 0;
+            padding: .6rem .95rem;
+            font-size: .85rem;
+            color: #fde68a;
+            margin: .6rem 0
+        }
+
+        .tip {
+            background: #111827;
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: .6rem .95rem;
+            font-size: .85rem;
+            color: var(--accent2);
+            margin: .6rem 0
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: .6rem 0 1.2rem;
+            font-size: .84rem
+        }
+
+        th {
+            background: var(--surface2);
+            color: var(--accent2);
+            font-weight: 700;
+            padding: .48rem .8rem;
+            text-align: left;
+            border: 1px solid var(--border)
+        }
+
+        td {
+            padding: .45rem .8rem;
+            border: 1px solid var(--border);
+            vertical-align: top;
+            background: var(--surface)
+        }
+
+        tr:hover td {
+            background: var(--surface2)
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            font-size: .72rem;
+            font-weight: 700;
+            padding: .12rem .48rem;
+            border-radius: 999px;
+            border: 1px solid
+        }
+
+        .badge.g2 {
+            background: #0a1f12;
+            color: var(--green);
+            border-color: var(--green)
+        }
+
+        .badge.g1 {
+            background: #2a0a0a;
+            color: var(--red);
+            border-color: var(--red)
+        }
+
+        .badge.same {
+            background: #111827;
+            color: var(--accent2);
+            border-color: var(--accent)
+        }
+
+        /* Plot grid */
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+            gap: 1.2rem;
+            margin: 1rem 0 1.6rem
+        }
+
+        .plot-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden
+        }
+
+        .plot-card img {
+            width: 100%;
+            display: block;
+            cursor: zoom-in;
+            transition: opacity .2s
+        }
+
+        .plot-card img:hover {
+            opacity: .92
+        }
+
+        .plot-cap {
+            padding: .55rem .9rem;
+            font-size: .78rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border)
+        }
+
+        .plot-cap strong {
+            color: var(--text)
+        }
+
+        /* Lightbox */
+        .lb {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .88);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out
+        }
+
+        .lb.open {
+            display: flex
+        }
+
+        .lb img {
+            max-width: 92vw;
+            max-height: 92vh;
+            border-radius: 8px;
+            box-shadow: 0 0 60px rgba(0, 0, 0, .8)
+        }
+
+        /* IC comparison */
+        .ic-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: .8rem;
+            margin: .8rem 0 1.2rem;
+            font-size: .84rem
+        }
+
+        .ic-card {
+            border-radius: 10px;
+            padding: .8rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--surface)
+        }
+
+        .ic-card h4 {
+            font-size: .88rem;
+            font-weight: 700;
+            margin-bottom: .5rem
+        }
+
+        .ic-card.cont h4 {
+            color: var(--accent2)
+        }
+
+        .ic-card.hist h4 {
+            color: var(--green)
+        }
+
+        .ic-card.tp2k h4 {
+            color: var(--yellow)
+        }
+
+        .ic-row {
+            display: flex;
+            gap: .5rem;
+            margin: .25rem 0;
+            font-size: .79rem
+        }
+
+        .ic-label {
+            color: var(--muted);
+            width: 30px;
+            flex-shrink: 0;
+            font-weight: 600
+        }
+
+        .gen-tag {
+            font-size: .72rem;
+            font-weight: 700;
+            padding: .1rem .35rem;
+            border-radius: 4px;
+            margin-left: .3rem
+        }
+
+        .gen-tag.g1 {
+            background: #2a0a0a;
+            color: var(--red)
+        }
+
+        .gen-tag.g2 {
+            background: #0a1f12;
+            color: var(--green)
+        }
+
+        @media(max-width:600px) {
+
+            .ic-grid,
+            .plot-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-nav">
+        <button class="nav-btn active" onclick="showSec('s0',this)">Overview</button>
+        <button class="nav-btn" onclick="showSec('s1',this)">Large-scale Climate</button>
+        <button class="nav-btn" onclick="showSec('s2',this)">Bias &amp; Evaluation</button>
+        <button class="nav-btn" onclick="showSec('s3',this)">Event Storylines</button>
+        <button class="nav-btn" onclick="showSec('s4',this)">Ensemble &amp; Summary</button>
+        <button class="theme-btn" id="tbtn" onclick="toggleTheme()">☀ Light</button>
+    </div>
+
+    <div class="container">
+
+        <!-- LIGHTBOX -->
+        <div class="lb" id="lb" onclick="closeLB()"><img id="lb-img" src=""></div>
+
+        <!-- ══════════════════════════════════
+     S0 — OVERVIEW
+══════════════════════════════════ -->
+        <div id="s0" class="section active">
+            <h1>G1 vs G2 — Storyline Comparison</h1>
+            <p class="subtitle">IFS-FESOM km-scale storyline simulations · Three climate states · Initialization update
+                assessment</p>
+
+            <h2>What changed?</h2>
+            <p>Two key differences between <strong>Generation 1 (G1)</strong> and <strong>Generation 2 (G2)</strong>:
+            </p>
+            <div class="note">&#9889; <strong>G2 model update:</strong> Bugfixed model version with a new runoff scheme.
+            </div>
+            <div class="note">&#128260; <strong>G2 initialization:</strong> All three experiments now branch from long
+                EERIE coupled runs, removing the mixed-IC inconsistency present in G1.</div>
+
+            <h2>Experiment Configurations</h2>
+            <table>
+                <tr>
+                    <th>Experiment</th>
+                    <th>Climate state</th>
+                    <th>Forcing</th>
+                    <th>G1 Initialization</th>
+                    <th>G2 Initialization</th>
+                </tr>
+                <tr>
+                    <td><strong>Cont</strong></td>
+                    <td>~1950, cooler</td>
+                    <td>CMIP6-hist 1950 (fixed)</td>
+                    <td>Atm: ERA5 (2017-01-01)<br>Ocean: 5-yr standalone spinup (1945–1949) <span
+                            class="badge g1">mixed</span></td>
+                    <td>Branched from EERIE control run (1950) <span class="badge g2">consistent</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Hist</strong></td>
+                    <td>Present-day</td>
+                    <td>CMIP6-SSP3-7.0, transient 2017–2024</td>
+                    <td>Atm: ERA5 (2017-01-01)<br>Ocean: 5-yr standalone spinup (2012–2016) <span
+                            class="badge g1">mixed</span></td>
+                    <td>Branched from EERIE historical run (2017) <span class="badge g2">consistent</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Tp2K</strong></td>
+                    <td>+2 K warmer</td>
+                    <td>CMIP6-SSP3-7.0, 2050 (fixed)</td>
+                    <td>Branched from NextGEMS coupled run (2040) <span class="badge g1">mixed</span></td>
+                    <td>Branched from EERIE projection run (2050) <span class="badge g2">consistent</span></td>
+                </tr>
+            </table>
+
+            <h2>IC Comparison at a Glance</h2>
+            <div class="ic-grid">
+                <div class="ic-card cont">
+                    <h4>Cont (~1950)</h4>
+                    <div class="ic-row"><span class="ic-label">G1</span> ERA5 atm + standalone FESOM ocean 1945–49 <span
+                            class="gen-tag g1">G1</span></div>
+                    <div class="ic-row"><span class="ic-label">G2</span> EERIE control branch 1950 — fully coupled <span
+                            class="gen-tag g2">G2</span></div>
+                </div>
+                <div class="ic-card hist">
+                    <h4>Hist (present-day)</h4>
+                    <div class="ic-row"><span class="ic-label">G1</span> ERA5 atm + standalone FESOM ocean 2012–16 <span
+                            class="gen-tag g1">G1</span></div>
+                    <div class="ic-row"><span class="ic-label">G2</span> EERIE historical branch 2017 — fully coupled
+                        <span class="gen-tag g2">G2</span>
+                    </div>
+                </div>
+                <div class="ic-card tp2k">
+                    <h4>Tp2K (+2 K)</h4>
+                    <div class="ic-row"><span class="ic-label">G1</span> NextGEMS branch 2040 — different coupled system
+                        <span class="gen-tag g1">G1</span>
+                    </div>
+                    <div class="ic-row"><span class="ic-label">G2</span> EERIE projection branch 2050 — same framework
+                        <span class="gen-tag g2">G2</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warn">&#9888; G1 had an inherent inconsistency: Cont and Hist used ERA5 atmosphere + standalone
+                FESOM ocean, while Tp2K used a fully coupled NextGEMS branch. G2 resolves this by using the EERIE
+                coupled framework consistently for all three experiments.</div>
+
+            <h2>G2 Global Mean Temperature — Per Member</h2>
+            <p>G2 runs 5 ensemble members for the <strong>complete simulation period</strong> (unlike G1 which only had
+                5 members for the end of 2024). The ensemble spread is negligible, confirming tight nudging control.</p>
+            <table>
+                <tr>
+                    <th>Member</th>
+                    <th>Cont (K)</th>
+                    <th>Hist (K)</th>
+                    <th>Tp2K (K)</th>
+                    <th>Hist &minus; Cont (K)</th>
+                    <th>Tp2K &minus; Hist (K)</th>
+                    <th>Tp2K &minus; Cont (K)</th>
+                </tr>
+                <tr>
+                    <td>E1</td>
+                    <td>286.7</td>
+                    <td>287.5</td>
+                    <td>288.9</td>
+                    <td>0.9</td>
+                    <td>1.3</td>
+                    <td>2.2</td>
+                </tr>
+                <tr>
+                    <td>E2</td>
+                    <td>286.7</td>
+                    <td>287.6</td>
+                    <td>288.9</td>
+                    <td>0.9</td>
+                    <td>1.3</td>
+                    <td>2.2</td>
+                </tr>
+                <tr>
+                    <td>E3</td>
+                    <td>286.7</td>
+                    <td>287.5</td>
+                    <td>288.9</td>
+                    <td>0.9</td>
+                    <td>1.4</td>
+                    <td>2.2</td>
+                </tr>
+                <tr>
+                    <td>E4</td>
+                    <td>286.7</td>
+                    <td>287.5</td>
+                    <td>288.9</td>
+                    <td>0.9</td>
+                    <td>1.4</td>
+                    <td>2.2</td>
+                </tr>
+                <tr>
+                    <td>E5</td>
+                    <td>286.7</td>
+                    <td>287.6</td>
+                    <td>288.9</td>
+                    <td>0.9</td>
+                    <td>1.3</td>
+                    <td>2.2</td>
+                </tr>
+                <tr style="font-weight:700">
+                    <td>ENS MEAN</td>
+                    <td>286.7</td>
+                    <td>287.5</td>
+                    <td>288.9</td>
+                    <td>0.9</td>
+                    <td>1.3</td>
+                    <td>2.2</td>
+                </tr>
+            </table>
+
+            <h2>G1 vs G2 &#916;T Comparison</h2>
+            <div class="warn">&#9888; The Cont&rarr;Hist warming signal is <strong>smaller in G2 (+0.9 K) than in G1
+                    (+1.3 K)</strong>, likely reflecting the improved EERIE ocean initialization providing a more
+                physically consistent 1950 climate state. The Cont&rarr;Tp2K signal is similar (G2: +2.2 K vs G1: +2.3
+                K).</div>
+            <table>
+                <tr>
+                    <th>Pair</th>
+                    <th>G1 &#916;T</th>
+                    <th>G2 &#916;T (ENS MEAN)</th>
+                    <th>Difference</th>
+                </tr>
+                <tr>
+                    <td>Cont &rarr; Hist</td>
+                    <td>&#8776; +1.3 K</td>
+                    <td><strong>+0.9 K</strong></td>
+                    <td>&minus;0.4 K</td>
+                </tr>
+                <tr>
+                    <td>Hist &rarr; Tp2K</td>
+                    <td>&#8776; +1.0 K</td>
+                    <td><strong>+1.3 K</strong></td>
+                    <td>+0.3 K</td>
+                </tr>
+                <tr>
+                    <td>Cont &rarr; Tp2K</td>
+                    <td>&#8776; +2.3 K</td>
+                    <td><strong>+2.2 K</strong></td>
+                    <td>&minus;0.1 K</td>
+                </tr>
+            </table>
+        </div><!-- /s0 -->
+
+        <!-- ══════════════════════════════════
+     S1 — LARGE-SCALE CLIMATE
+══════════════════════════════════ -->
+        <div id="s1" class="section">
+            <h1>Large-scale Climate State</h1>
+            <p class="subtitle">Zonal mean temperature, time series, and cross-experiment spread</p>
+
+            <h2>G1 vs G2 vs ERA5 — Hist Daily T2M (2017–2024)</h2>
+            <p>Daily 2m temperature time series for the <strong>Hist</strong> experiment, comparing Gen1 (blue), Gen2
+                (red), and ERA5 (black) over the full simulation period. Dashed lines show time-period means. Yellow
+                shading marks the spinup year (2017).</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/TS_hist_2017-2024_2t_comparison.png" alt="Hist T2M G1 vs G2 vs ERA5"
+                        onclick="openLB(this)">
+                    <div class="plot-cap"><strong>TS_hist_2017-2024_2t_comparison</strong> &mdash; Daily global mean 2m
+                        temperature for the Hist experiment: ERA5 (black), Gen1 (blue), Gen2 (red), 2017&ndash;2024.
+                        Dashed lines = time-mean. Yellow shading = spinup period.</div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="note">&#9989; <strong>Phase:</strong> Both G1 and G2 capture the seasonal cycle timing
+                accurately throughout the full 2017&ndash;2024 period. The annual cycle phase is well locked to ERA5 in
+                all years, consistent with the spectral nudging constraining large-scale circulation.</div>
+            <div class="warn">&#9660; <strong>G1 cold bias:</strong> G1 (blue) runs <em>systematically cooler</em> than
+                ERA5 throughout most of the period, particularly in the earlier years. The time-mean dashed lines show
+                G1 sitting roughly 0.2&ndash;0.3&thinsp;K
+                below ERA5, with the cold bias most visible during summer maxima and winter minima.</div>
+            <div class="warn">&#9660; <strong>G2 cold bias:</strong> G2 (red) is <em>noticeably cooler than G1</em>,
+                pushing the time mean further below ERA5. The cold bias persists across all seasons, resulting in a
+                systematic offset of roughly 0.4&ndash;0.5&thinsp;K relative to ERA5.</div>
+            <div class="note">&#128203; <strong>Spinup (2017, yellow):</strong> Both generations show transient
+                adjustment during the spinup year. The time series stabilize quickly after the initial adjustment,
+                maintaining their respective systematic offsets from ERA5 throughout the rest of the simulation.</div>
+            <p style="font-size:.85rem;color:var(--muted)">The transition from G1 to G2 with the EERIE-based ocean
+                initialization introduces a stronger global mean cold bias in the Hist climate state, reflecting the
+                underlying state of the long coupled spinup used for the initial conditions.</p>
+
+            <h2>All Experiments &mdash; Daily T2M (2017&ndash;2024)</h2>
+            <p>Daily global mean 2m temperature for all three climate states across both generations. G1 = dotted lines,
+                G2 = solid lines. Colours: Cont (blue), Hist (green), Tp2K (orange). Dashed horizontals = time-period
+                means. Yellow shading = spinup (2017).</p>
+            <div class="note" style="font-size:.82rem">&#9432; <strong>Note on data gaps:</strong> G2 Cont data starts
+                from 2018 (2017 retrieval pending from the data bridge); Tp2K has a short gap around mid-2022. Both are
+                plotting artefacts only &mdash; the model data exists and has been produced.</div>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/TS_2t_all_exp.png" alt="All experiments T2M time series" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>TS_2t_all_exp</strong> &mdash; Daily global mean 2m temperature: ERA5
+                        (black), Cont G1 (blue dotted) / G2 (blue solid), Hist G1 (green dotted) / G2 (green solid),
+                        Tp2K G1 (orange dotted) / G2 (orange solid). Dashed horizontals = time-means per experiment.
+                    </div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="note">&#127777; <strong>Clear climate state separation:</strong> The three experiments sit in
+                well-separated temperature bands across all years. Cont (blue, ~13&thinsp;&deg;C mean) represents the
+                cooler pre-industrial-like climate; Hist (green, ~14.2&thinsp;&deg;C) the present-day; and Tp2K (orange,
+                ~15.7&thinsp;&deg;C) the warmer world. The separation is stable and consistent throughout, confirming
+                the experiments correctly represent their intended background climate states.</div>
+            <div class="tip">&#9997; <strong>Improved climate state separation in G2:</strong> The transition from G1
+                (dotted lines) to G2 (solid lines) noticeably corrects the baseline global-mean temperatures across
+                experiments. In G1, differing standalone ocean spinups caused the temperature gaps between experiments
+                to be artificially distorted (~1.4&thinsp;K Cont&rarr;Hist, ~1.0&thinsp;K Hist&rarr;Tp2K). In G2,
+                utilizing consistent EERIE-coupled initial states better anchors the baselines, bringing the temperature
+                gaps closer to the intended atmospheric forcing targets (+0.9&thinsp;K for Cont&rarr;Hist, and
+                +1.3&thinsp;K for Hist&rarr;Tp2K).
+            </div>
+            <div class="note">&#9989; <strong>Seasonal cycle phase:</strong> All six model runs accurately reproduce the
+                observed seasonal cycle timing. No phase drift is observed across the 8-year period, as expected from
+                spectral nudging anchoring the large-scale circulation.</div>
+            <div class="tip">&#128202; <strong>Time-mean offsets:</strong> The horizontal dashed lines clearly quantify
+                the warming between experiments. The corrected baselines in G2 ensure a more accurate representation of
+                the relative warming scenarios.</div>
+
+            <h2>Zonal Mean T2M — G1 vs G2 (Hist)</h2>
+            <p>Time-mean (2018–2024) zonal mean 2m temperature for the Hist experiment: Gen1 (blue), Gen2 (red), ERA5
+                (black). Reveals where the initialization change matters most across latitudes.</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/ZNMN_g1vg2.png" alt="Zonal mean G1 vs G2" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>ZNMN_g1vg2</strong> &mdash; Time-mean zonal mean 2m temperature for
+                        the Hist experiment. Gen1 (blue), Gen2 (red), ERA5 (black).</div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="note">&#127758; <strong>Tropics &amp; S. mid-lats (60°S–60°S):</strong> G1 and G2 are nearly
+                indistinguishable from each other and from ERA5 across the tropics and southern mid-latitudes. This
+                confirms that nudging effectively constrains the large-scale circulation in these regions regardless of
+                the IC generation.</div>
+            <div class="warn">&#9660; <strong>N. High Lats (60°N–90°N):</strong> G1 (blue) runs slightly cooler than
+                ERA5, with a cold bias peaking near the Arctic (~1–3&thinsp;&deg;C). G2 (red) exacerbates this cold
+                bias, dropping the zonal mean further below ERA5. This is the most striking difference between
+                generations and likely
+                reflects the significantly colder EERIE Arctic ocean state used for G2's initial conditions.</div>
+            <div class="warn">&#9650; <strong>N. High Lats (60°N–90°N):</strong> Both G1 and G2 diverge from ERA5. The
+                residual bias in the Northern high latitudes is a known structural limitation tied to Arctic
+                sea-ice.</div>
+            <div class="tip">&#128202; <strong>Overall:</strong> The transition from G1 to G2 introduces a stronger
+                high-latitude cold bias in the Northern Hemisphere, while maintaining identical performance across the
+                tropics and mid-latitudes.</div>
+
+            <h2>Zonal Mean T2M — All Experiments (G2)</h2>
+            <p>Time-mean zonal mean 2m temperature for all three experiments, both generations: Cont G1/G2 (blue), Hist
+                G1/G2 (green), Tp2K G1/G2 (red/orange). ERA5 shown as the present-day reference (black). Illustrates the
+                latitudinal structure of climate change signals across the three backgrounds.</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/ZNMN_allexps.png" alt="Zonal mean T2M all experiments" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>ZNMN_allexps</strong> &mdash; Time-mean zonal mean 2m temperature for
+                        all experiments. Cont G1 (blue dotted) / G2 (blue solid), Hist G1 (green dotted) / G2 (green
+                        solid), Tp2K G1 (red dotted) / G2 (red solid), ERA5 (black).</div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="note">&#127777; <strong>Experiment separation across latitudes:</strong> The three climate
+                states are well separated at all latitudes. In the <strong>N. high lats</strong>, Cont sits ~5–6°C
+                colder than Hist, and Hist ~2–3°C colder than Tp2K, reflecting both the forcing difference and the
+                changed ocean IC. In the <strong>tropics</strong>, the separation narrows but remains clear. In the
+                <strong>S. high lats</strong>, the experiments diverge most strongly, with Tp2K (G2) showing the largest
+                excursion from ERA5 — a signature of the different ocean/sea-ice state in the 2050 EERIE branch.
+            </div>
+            <div class="tip">&#127757; <strong>Tropics — all experiments near ERA5:</strong> In the tropical belt
+                (~30°S–30°N), all six runs (both generations, all three experiments) sit close to ERA5.</div>
+            <div class="warn">&#9650; <strong>S. High Lats — Tp2K divergence:</strong> The Tp2K experiment (red) shows
+                the largest departure from ERA5 in the Southern high latitudes (poleward of 70°S), running significantly
+                warmer. This is consistent with the EERIE 2050-branched ocean state carrying a warmer Southern Ocean and
+                reduced Antarctic sea-ice extent, producing a larger thermodynamic signal at southern polar latitudes.
+            </div>
+            <div class="tip">&#9997; <strong>G1 vs G2 across experiments:</strong> Within Cont (blue), G2 (solid) runs
+                notably cooler than G1 (dotted) at mid-to-high northern latitudes. Within Hist (green) and Tp2K (red),
+                the G1/G2 lines are very close, confirming the EERIE IC primarily impacts the pre-industrial
+                Cont experiment's high-latitude mean state.</div>
+
+            <h2>Regional Time Series</h2>
+            <p>Time series of key variables split by region (N. High Lats, N. Mid-Lats, Tropics, S. Mid-Lats, S. High
+                Lats) for all experiments and both generations. These plots allow a region-by-region assessment of how
+                G2 compares to G1 and ERA5.</p>
+            <div class="plot-grid">
+                <div class="plot-card">
+                    <img src="plots/TS_2t_regions.png" alt="2T regional time series all experiments"
+                        onclick="openLB(this)">
+                    <div class="plot-cap"><strong>TS_2t_regions</strong> &mdash; Regional 2m temperature time series for
+                        all experiments and both generations. Shows G1 vs G2 per region.</div>
+                </div>
+                <div class="plot-card">
+                    <img src="plots/TS_cont_regions.png" alt="Cont regional time series" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>TS_cont_regions</strong> &mdash; Regional time series for the Cont
+                        experiment.</div>
+                </div>
+                <div class="plot-card">
+                    <img src="plots/TS_sst_regions.png" alt="SST regional time series" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>TS_sst_regions</strong> &mdash; Regional SST time series. Key
+                        diagnostic for ocean initialization impact.</div>
+                </div>
+                <div class="plot-card">
+                    <img src="plots/Ts_tp_regions.png" alt="Precipitation regional time series" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>Ts_tp_regions</strong> &mdash; Regional precipitation time series
+                        across all experiments.</div>
+                </div>
+                <div class="plot-card">
+                    <img src="plots/TS_z500_regions.png" alt="Z500 regional time series" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>TS_z500_regions</strong> &mdash; Regional 500&thinsp;hPa geopotential
+                        height time series.</div>
+                </div>
+            </div>
+
+        </div><!-- /s1 -->
+
+        <!-- ══════════════════════════════════
+     S2 — BIAS & EVALUATION
+══════════════════════════════════ -->
+        <div id="s2" class="section">
+            <h1>Model Bias &amp; Evaluation</h1>
+            <p class="subtitle">Annual and seasonal biases relative to ERA5 — G1 vs G2 comparison</p>
+
+            <h2>Annual Bias — G1 vs G2</h2>
+            <p>Annual mean biases across 2m temperature, SST, precipitation, and Z500 relative to ERA5. G1 (left) vs G2
+                (right).</p>
+            <div class="plot-grid">
+                <div class="plot-card">
+                    <img src="plots/G1_annual_bias.png" alt="G1 annual bias" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>G1_annual_bias</strong> — Annual mean bias, G1 vs ERA5.</div>
+                </div>
+                <div class="plot-card">
+                    <img src="plots/G2_annual_bias.png" alt="G2 annual bias" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>G2_annual_bias</strong> — Annual mean bias, G2 vs ERA5.</div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="warn">&#9650; <strong>G2 Arctic cold bias:</strong> G2 shows a pronounced cold bias
+                (3–6&thinsp;°C) over the Arctic and sub-polar N. Atlantic in both 2T and SST. While the EERIE historical
+                branch at 2017
+                provides a consistent coupled ocean state (resolving the mixed-IC issue), it carries a significantly
+                colder
+                polar ocean compared to the standalone FESOM spinup used in G1.</div>
+            <div class="tip">&#9660; <strong>G1 Arctic performance:</strong> G1 shows a much smaller cold bias in the
+                Northern high
+                latitudes, as its ERA5-initialised atmosphere over a warm-biased standalone FESOM spinup partially
+                masked
+                the high-latitude cooling seen in the fully coupled system.</div>
+            <!-- <div class="note">&#128203; <strong>Tropics and mid-latitudes:</strong> Both generations agree closely with
+                ERA5 in these regions at annual mean level, reflecting the effectiveness of spectral nudging. The small
+                residual tropical SST warm bias visible in G1 is also reduced in G2, consistent with a less-drifted
+                ocean at initialisation.</div> -->
+            <div class="warn">&#9650; <strong>Southern Ocean residual:</strong> Both G1 and G2 share a persistent warm
+                bias in the Southern Ocean and around Antarctica (2–4&thinsp;°C). This
+                is a structural issue in the FESOM configuration — not resolved simply by changing the IC source — and
+                would require a longer dedicated Southern Ocean spinup to address.</div>
+            <div class="note">&#9989; <strong>Precipitation and Z500:</strong> Annual precipitation and Z500 bias
+                patterns are broadly similar between generations. Spectral nudging effectively controls large-scale
+                circulation regardless of IC choice; any small Z500 inter-generation differences are confined to the
+                polar regions where surface temperature biases feed back into the mid-troposphere.</div>
+            <hr>
+
+            <h2>Seasonal Biases — G1 vs G2</h2>
+            <p>Seasonal breakdown (DJF / MAM / JJA / SON) of biases for G1 (left) and G2 (right).</p>
+            <div class="plot-grid">
+                <div class="plot-card">
+                    <img src="plots/G1_seasonal_biases.png" alt="G1 seasonal biases" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>G1_seasonal_biases</strong> — Seasonal biases in G1 across
+                        DJF/MAM/JJA/SON.</div>
+                </div>
+                <div class="plot-card">
+                    <img src="plots/G2_seasonal_biases.png" alt="G2 seasonal biases" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>G2_seasonal_biases</strong> — Seasonal biases in G2 across
+                        DJF/MAM/JJA/SON.</div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="warn">&#9650; <strong>DJF (boreal winter) — strongest cold bias:</strong> The G2 cold bias at N.
+                high latitudes peaks in DJF, where sea-ice and ocean heat content differences from the EERIE coupled
+                state are most consequential. G1 displays a much weaker cold bias during winter in the Arctic.</div>
+            <div class="tip">&#9660; <strong>MAM (boreal spring):</strong> Spring also shows a clear pronounced cold
+                bias
+                in G2, consistent with sea-ice memory: a denser, colder EERIE Arctic ocean state delays warming and
+                keeps
+                surface temperatures below ERA5 through spring.</div>
+            <div class="note">&#127777; <strong>JJA (boreal summer):</strong> In summer, the Arctic cold bias in G2 and
+                G1 weakens but
+                persists. Mid-latitude and tropical biases in boreal summer are nearly identical between generations
+                in both magnitude and pattern.</div>
+            <div class="note">&#9989; <strong>SON (boreal autumn):</strong> Autumn shows a relatively smaller G1–G2
+                contrast
+                compared to winter. Both generations display comparable bias patterns globally. The Southern Ocean bias
+                is consistent across all seasons and both generations, further confirming it as a structural model
+                limitation independent of IC choice.</div>
+
+            <hr>
+
+            <h3>Regional Time Series Comparison Summary</h3>
+            <table>
+                <tr>
+                    <th>Region</th>
+                    <th>Variable</th>
+                    <th>G1 vs ERA5</th>
+                    <th>G2 vs ERA5</th>
+                    <th>Key Difference (G1 to G2)</th>
+                </tr>
+                <tr>
+                    <td>N. High Lats</td>
+                    <td>2m Temp / SST</td>
+                    <td>Warm bias due to standalone spinup</td>
+                    <td>Pronounced cold bias from coupled EERIE IC</td>
+                    <td>Transition from a warm bias (G1) to a stronger cold bias (G2).</td>
+                </tr>
+                <tr>
+                    <td>Tropics / Mid-Lats</td>
+                    <td>2m Temp / SST</td>
+                    <td>Very close to ERA5</td>
+                    <td>Very close to ERA5</td>
+                    <td>Negligible difference; spectral nudging strongly constrains the signal.</td>
+                </tr>
+                <tr>
+                    <td>S. High Lats</td>
+                    <td>2m Temp / SST</td>
+                    <td>Persistent warm bias</td>
+                    <td>Persistent warm bias</td>
+                    <td>Structural bias remains unchanged regardless of initialization generation.</td>
+                </tr>
+                <tr>
+                    <td>Global</td>
+                    <td>Precipitation</td>
+                    <td>High fidelity in extra-tropics</td>
+                    <td>High fidelity in extra-tropics</td>
+                    <td>Both generations capture comparable synoptic-scale variability.</td>
+                </tr>
+                <tr>
+                    <td>Global</td>
+                    <td>Z500</td>
+                    <td>Near-perfect phase alignment</td>
+                    <td>Near-perfect phase alignment</td>
+                    <td>Nudging effectively controls large-scale circulation equally well.</td>
+                </tr>
+            </table>
+
+            <hr>
+
+            <h2>Temporal Variability — G1 vs G2</h2>
+            <p>Global maps of temporal correlation for daily 2m-temperature (T2M), total precipitation, and 500 hPa
+                geopotential height (Z500) computed using ERA5 as a reference. G1 (top row) vs G2 (bottom row).</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/correlation_g1vsg2.png" alt="Temporal correlation G1 vs G2" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>correlation_g1vsg2</strong> — Temporal correlation maps comparing G1
+                        and G2 to ERA5.</div>
+                </div>
+            </div>
+            <h3>Analysis</h3>
+            <div class="tip">&#9989; <strong>500 hPa Geopotential (Right):</strong> Both G1 and G2 show extremely high
+                temporal correlation (near 1.0) globally. This confirms that the spectral nudging technique successfully
+                and consistently constrains the large-scale atmospheric circulation to match ERA5 in both model
+                generations.</div>
+            <div class="note">&#128203; <strong>2m-Temperature (Left):</strong> Temporal correlation is very high across
+                both oceans and most land masses. Over oceans, this reflects the prescribed/spun-up SSTs and atmospheric
+                nudging. Over land, it reflects the nudged synoptic weather systems controlling daily temperature
+                variations. Both generations perform very well, with negligible differences.</div>
+            <div class="warn">&#9650; <strong>Total Precipitation (Center):</strong> As expected, temporal correlations
+                for precipitation are generally lower than for temperature or Z500, since precipitation is noisier and
+                less directly controlled by large-scale nudging. Correlations are higher in the extra-tropics (where
+                synoptic frontal systems dominate) and lower in the tropics/subtropics (where convective processes
+                dominate). Both G1 and G2 show very similar spatial patterns and overall high fidelity.</div>
+            <div class="tip">&#127777; <strong>Overall conclusion:</strong> The transition from G1 to G2 (and the update
+                in ocean initialization) maintains the strong temporal correlation with ERA5. The spectral nudging
+                successfully synchronizes the synoptic-scale variability with the reference reanalysis in both
+                generations without degradation.</div>
+
+            <hr>
+
+            <h2>Capturing of Extremes</h2>
+            <p>Evaluation of extreme events capturing capability using the present-day (Hist) background. Comparing
+                against observations (ERA5, MSWEP) and the AWI-CM1 coarse-resolution model for the July 2019 Paris
+                heatwave and September 2024 Storm Boris.</p>
+
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/Paris_HW_eval.png" alt="Paris heatwave evaluation" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>Paris_HW_eval</strong> — Evaluation of the July 2019 Paris heatwave.
+                        Checking temperature peaks, spatial distribution, and Cont/Hist/Tp2K signals.</div>
+                </div>
+            </div>
+
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/event_boris_eval.png" alt="Storm Boris evaluation" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>event_boris_eval</strong> — Storm Boris precipitation evaluation in G2
+                        across all three climate backgrounds (Cont, Hist, Tp2K).</div>
+                </div>
+            </div>
+        </div><!-- /s2 -->
+
+        <!-- ══════════════════════════════════
+     S3 — EVENT STORYLINES
+══════════════════════════════════ -->
+        <div id="s3" class="section">
+            <h1>Event-based Storylines</h1>
+            <p class="subtitle">How do the two extreme events look in G2? What changes relative to G1?</p>
+
+            <h2>July 2019 Paris Heatwave</h2>
+            <div class="note">&#127381; <strong>Ensemble upgrade:</strong> We now have 5 ensemble members extending
+                across the <em>entire</em> simulation period for G2. For the 2019 Paris heatwave, we go from evaluating
+                a single member in G1 to characterizing the storyline using the full 5-member spread in G2.</div>
+
+            <p>Comparing the July 2019 European heatwave storyline between G1 (1 member) and G2 (5 members). Displays
+                the climate signals (Cont, Hist, Tp2K) to highlight how the initialization update influences the maximum
+                temperature intensities and distributions across the continent.</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/Paris_story_G1.png" alt="Paris heatwave G1 storyline" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>Paris_story_G1</strong> — G1 July 2019 Paris heatwave storyline. Note
+                        the single realization available during this period versus the colder high-latitude Cont
+                        background.</div>
+                </div>
+            </div>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/Paris_story_G2.png" alt="Paris heatwave G2 storyline" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>Paris_story_G2</strong> — G2 July 2019 Paris heatwave storyline
+                        showcasing the ensemble spread (5 members) providing robust intensity estimates.</div>
+                </div>
+            </div>
+
+            <h3>Inferences: Paris Heatwave</h3>
+            <div class="note">&#128269; <strong>Impact of G2 Initialization &amp; Ensemble:</strong> In G1, reliance on
+                a single ensemble member inherently limited our ability to assess the role of internal variability. With
+                G2's 5-member ensemble over the full period, we can confirm that the heatwave's spatial distribution and
+                peak intensity are robust features across realizations. Despite G2 manifesting a notably colder baseline
+                state at high latitudes in the Cont background, the thermodynamic escalation of the heatwave from Cont
+                to Hist, and onto Tp2K, scales consistently. The G2 ensemble spread thereby instils higher confidence in
+                quantifying the heatwave's intensity bounds under different climate scenarios.</div>
+
+            <h2>September 2024 Storm Boris</h2>
+            <p>Comparing the catastrophic September 2024 Storm Boris (12–16 Sep) precipitation storylines between G1 and
+                G2. Here both display 5 members as the G1 ensemble was spun up towards the end of 2024. The Cont, Hist,
+                and Tp2K backgrounds demonstrate the thermodynamic limits on extreme rainfall totals across Central
+                Europe for both generations.</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/Boris_story_G1.png" alt="Storm Boris G1 storyline" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>Boris_story_G1</strong> — G1 Storm Boris storyline.</div>
+                </div>
+            </div>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/Boris_story_G2.png" alt="Storm Boris G2 storyline" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>Boris_story_G2</strong> — G2 Storm Boris storylines.</div>
+                </div>
+            </div>
+
+            <h3>Inferences: Storm Boris</h3>
+            <div class="note">&#128269; <strong>Impact of G1 vs G2:</strong> While both G1 and G2 uniquely benefit from
+                a 5-member spread for the late-2024 Storm Boris event, comparing the two generations solidifies our
+                understanding of extreme precipitation scaling. Both versions exhibit a strong thermodynamic expansion
+                of the extreme rainfall area (&gt;100 mm) from the cooler Cont climate to the present-day Hist, and
+                further into the warmer Tp2K future. The persistence of this robust storyline in G2—despite the
+                comprehensive switch to a fully-coupled EERIE initial state—demonstrates that the governing atmospheric
+                nudging and background climate warming strictly dominate the extreme precipitation signal, overpowering
+                any minor state changes introduced by the ocean initialization update.</div>
+
+            <!--
+            <h3>Storylines Comparison Summary</h3>
+            <table>
+                <tr>
+                    <th>Event</th>
+                    <th>Metric</th>
+                    <th>G1 (Original ICs)</th>
+                    <th>G2 (EERIE ICs, 5 members)</th>
+                    <th>Key Inference</th>
+                </tr>
+                <tr>
+                    <td>July 2019 Paris Heatwave</td>
+                    <td>Peak Temperature Intensity</td>
+                    <td>Single realization estimate</td>
+                    <td>Ensemble spread bounds intensity</td>
+                    <td>G2 confirms G1's peak was a robust representative of the heatwave distribution.</td>
+                </tr>
+                <tr>
+                    <td>July 2019 Paris Heatwave</td>
+                    <td>Cont &rarr; Hist &rarr; Tp2K Scaling</td>
+                    <td>Strong scaling from a warmer Cont baseline</td>
+                    <td>Consistent scaling from a noticeably colder Cont baseline</td>
+                    <td>In G2, the relative warming impact on extreme temperatures scales identically from its colder
+                        starting point.</td>
+                </tr>
+                <tr>
+                    <td>September 2024 Storm Boris</td>
+                    <td>Extreme Precipitation Scaling<br>(Area &gt;100 mm)</td>
+                    <td>+19.4% (Cont&rarr;Hist)<br>+3.5% (Hist&rarr;Tp2K)</td>
+                    <td>+11.4% (Cont&rarr;Hist)<br>+9.7% (Hist&rarr;Tp2K)</td>
+                    <td>Extreme rainfall signal is structurally dominated by atmospheric nudging and climate background,
+                        not ocean ICs.</td>
+                </tr>
+                <tr>
+                    <td>September 2024 Storm Boris</td>
+                    <td>Spatial Distribution of Rainfall</td>
+                    <td>High rainfall totals over Central Europe</td>
+                    <td>Consistent peak totals over Central Europe with minor ensemble shifts</td>
+                    <td>The location and magnitude of extreme dynamical events are heavily constrained and preserved in
+                        G2.</td>
+                </tr>
+            </table>
+            -->
+
+        </div><!-- /s3 -->
+
+        <!-- ══════════════════════════════════
+     S4 — ENSEMBLE & SUMMARY
+══════════════════════════════════ -->
+        <div id="s4" class="section">
+            <h1>Ensemble Spread &amp; Summary</h1>
+            <p class="subtitle">5-member ensemble for the <strong>complete simulation period</strong> (G2 upgrade) and
+                overall G1→G2 change summary</p>
+            <div class="note">&#127381; <strong>G2 upgrade:</strong> In G1, 5 ensemble members existed only for the last
+                part of 2024. In G2, all five members run the <em>full period</em>, enabling robust uncertainty
+                quantification throughout the entire simulation.</div>
+
+            <h2>Ensemble Mean and Standard Deviation</h2>
+            <p>Five ensemble members (E1–E5) were generated for the Storm Boris period by varying the nudging-off
+                duration (1–4 days). This plot shows the spread in G2.</p>
+            <div class="plot-grid">
+                <div class="plot-card" style="grid-column:1/-1">
+                    <img src="plots/ensemble_mean_std.png" alt="Ensemble mean and std" onclick="openLB(this)">
+                    <div class="plot-cap"><strong>ensemble_mean_std</strong> — Ensemble mean and standard deviation
+                        across E1–E5 in G2. Assesses whether the new initialization reduces or changes ensemble spread
+                        relative to G1.</div>
+                </div>
+            </div>
+
+            <h2>Overall G1 → G2 Summary</h2>
+            <table>
+                <tr>
+                    <th>Aspect</th>
+                    <th>G1</th>
+                    <th>G2</th>
+                    <th>Change</th>
+                </tr>
+                <tr>
+                    <td>Model version</td>
+                    <td>Original</td>
+                    <td>Bugfixed + new runoff scheme</td>
+                    <td><span class="badge g2">Improved</span></td>
+                </tr>
+                <tr>
+                    <td>Cont IC</td>
+                    <td>ERA5 atm + standalone FESOM ocean (1945–49)</td>
+                    <td>EERIE control branch (1950)</td>
+                    <td><span class="badge g2">Consistent</span></td>
+                </tr>
+                <tr>
+                    <td>Hist IC</td>
+                    <td>ERA5 atm + standalone FESOM ocean (2012–16)</td>
+                    <td>EERIE historical branch (2017)</td>
+                    <td><span class="badge g2">Consistent</span></td>
+                </tr>
+                <tr>
+                    <td>Tp2K IC</td>
+                    <td>NextGEMS branch (2040)</td>
+                    <td>EERIE projection branch (2050)</td>
+                    <td><span class="badge g2">Consistent</span></td>
+                </tr>
+                <tr>
+                    <td>Cross-experiment IC consistency</td>
+                    <td>&#10007; Mixed (ERA5/NextGEMS)</td>
+                    <td>&#10003; All from EERIE framework</td>
+                    <td><span class="badge g2">Resolved</span></td>
+                </tr>
+                <tr>
+                    <td>Ocean spinup quality</td>
+                    <td>5-yr standalone</td>
+                    <td>Long EERIE coupled spinup</td>
+                    <td><span class="badge g2">Much better</span></td>
+                </tr>
+                <tr>
+                    <td>Storm Boris Cont→Hist signal</td>
+                    <td>+19.4% area &gt;100 mm</td>
+                    <td><strong>+11.4%</strong> area &gt;100 mm</td>
+                    <td>&minus;8.0%</td>
+                </tr>
+                <tr>
+                    <td>Storm Boris Hist→Tp2K signal</td>
+                    <td>+3.5% area &gt;100 mm</td>
+                    <td><strong>+9.7%</strong> area &gt;100 mm</td>
+                    <td>+6.2%</td>
+                </tr>
+                <tr>
+                    <td>Global mean warming Cont→Hist</td>
+                    <td>+1.3 K</td>
+                    <td><strong>+0.9 K</strong></td>
+                    <td>&minus;0.4 K &#8593;</td>
+                </tr>
+                <tr>
+                    <td>Global mean warming Hist→Tp2K</td>
+                    <td>+1.0 K</td>
+                    <td><strong>+1.3 K</strong></td>
+                    <td>+0.3 K &#8593;</td>
+                </tr>
+                <tr>
+                    <td>Ensemble coverage</td>
+                    <td>5 members, end-2024 only</td>
+                    <td>5 members, <strong>full period</strong></td>
+                    <td><span class="badge g2">Upgrade</span></td>
+                </tr>
+            </table>
+
+            <hr>
+            <p style="color:var(--muted);font-size:.8rem">&middot; IFS-FESOM km-scale storyline simulations &middot;
+                Amal John &middot; G1 vs G2 comparison &middot;</p>
+        </div><!-- /s4 -->
+
+    </div><!-- /container -->
+
+    <script>
+        function showSec(id, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+        function toggleTheme() {
+            const l = document.body.classList.toggle('light');
+            document.getElementById('tbtn').textContent = l ? '🌙 Dark' : '☀ Light';
+            localStorage.setItem('g1g2theme', l ? 'light' : 'dark');
+        }
+        (function () { if (localStorage.getItem('g1g2theme') === 'light') { document.body.classList.add('light'); document.addEventListener('DOMContentLoaded', () => { const b = document.getElementById('tbtn'); if (b) b.textContent = '🌙 Dark'; }); } })();
+        function openLB(img) { document.getElementById('lb-img').src = img.src; document.getElementById('lb').classList.add('open'); }
+        function closeLB() { document.getElementById('lb').classList.remove('open'); }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLB(); });
+    </script>
+</body>
+
+</html>

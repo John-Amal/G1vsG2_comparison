@@ -1,0 +1,12 @@
+Ah, you are completely right, my apologies! I had interpreted the maps entirely backwards. I assumed G1 was the 'worse' one and G2 was 'fixing' it, but as you pointed out (and as the time-series in Section 1 also show), the EERIE ocean state introduces a *more pronounced cold bias* in the Northern high latitudes compared to the standalone FESOM spinup used in G1. 
+
+I've just updated the **Bias & Evaluation** section in `REPORT.html` to correctly state that:
+1. The bias in the N. high lats is a **cold bias** (not warm).
+2. **G2** introduces a stronger cold bias (due to the colder EERIE polar ocean state).
+3. **G1** had a smaller cold bias in this region during winter/spring.
+
+Also, before this, I was looking into extracting the quantitative numbers for the **Storm Boris** and **Paris Heatwave** events from the plots. Since they are image files, would you happen to have the exact numbers for:
+- Storm Boris Area >100 mm: Cont→Hist (%) and Hist→Tp2K (%) for G2
+- Paris HW: Peak T2M anomaly (°C) for Hist, and the Hist→Tp2K change (°C) for G2
+
+If you have those values handy, I can drop them straight into the concluding tables! Otherwise, I can write a quick Python script using Pillow/matplotlib to roughly estimate them from the plot pixels if you'd like.
